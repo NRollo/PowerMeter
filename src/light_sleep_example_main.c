@@ -28,35 +28,26 @@
 #include "lwip/sockets.h"
 #include "esp_wifi.h"
 
-/* Most development boards have "boot" button attached to GPIO0.
- * You can also change this to another pin.
- */
-#if CONFIG_IDF_TARGET_ESP32C3
-#define BUTTON_GPIO_NUM_DEFAULT     9
-#else
-#define BUTTON_GPIO_NUM_DEFAULT     0
-#endif
+static const char *TAG = "SleepClient";
 
-/* "Boot" button is active low */
-#define BUTTON_WAKEUP_LEVEL_DEFAULT     0
+extern void wifi_init_sta(void);
 
 void app_main(void)
 {
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    
-       /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
-     * Read "Establishing Wi-Fi or Ethernet Connection" section in
-     * examples/protocols/README.md for more information about this function.
-     */
-    ESP_ERROR_CHECK(example_connect());
-    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_ps(WIFI_PS_NONE));
+    //Initialize NVS
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+
+    wifi_init_sta();
 
     while (true) {
         /* Wake up in 2 seconds, or when button is pressed */
         esp_sleep_enable_timer_wakeup(10000000);
-        printf("Entering light sleep\n");
+        ESP_LOGI(TAG, "Entering light sleep");
 
         esp_wifi_stop();
         /* To make sure the complete line is printed before entering sleep mode,
@@ -70,7 +61,6 @@ void app_main(void)
         /* Enter sleep mode */
         esp_light_sleep_start();
         /* Execution continues here after wakeup */
-        esp_wifi_start();
         /* Get timestamp after waking up from sleep */
         int64_t t_after_us = esp_timer_get_time();
 
@@ -83,13 +73,18 @@ void app_main(void)
             case ESP_SLEEP_WAKEUP_GPIO:
                 wakeup_reason = "pin";
                 break;
+            case ESP_SLEEP_WAKEUP_UART:
+                wakeup_reason = "UART";
+                break;
             default:
                 wakeup_reason = "other";
                 break;
         }
-
-        printf("Returned from light sleep, reason: %s, t=%lld ms, slept for %lld ms\n",
+        ESP_LOGI(TAG, "Returned from light sleep, reason: %s, t=%lld ms, slept for %lld ms\n",
                 wakeup_reason, t_after_us / 1000, (t_after_us - t_before_us) / 1000);
-    }
 
+        if ((ret = esp_wifi_start()) != ESP_OK) {
+            ESP_LOGI(TAG, "WiFi Start error: %d", ret);
+        }
+    }
 }
