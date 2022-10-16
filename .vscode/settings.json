@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "protocol_examples_common.h": "c"
+        "protocol_examples_common.h": "c",
+        "task.h": "c",
+        "esp_err.h": "c",
+        "esp_sleep.h": "c"
     }
 }

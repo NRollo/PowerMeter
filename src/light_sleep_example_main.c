@@ -31,9 +31,14 @@
 static const char *TAG = "SleepClient";
 
 extern void wifi_init_sta(void);
+extern void rx_task (void *arg);
+extern void tx_task(void *arg);
+extern void UART_init(int uartNum);
 
 void app_main(void)
 {
+    esp_log_level_set("wifi", ESP_LOG_ERROR);
+
     //Initialize NVS
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -43,48 +48,10 @@ void app_main(void)
     ESP_ERROR_CHECK(ret);
 
     wifi_init_sta();
+    UART_init(UART_NUM_1);
 
-    while (true) {
-        /* Wake up in 2 seconds, or when button is pressed */
-        esp_sleep_enable_timer_wakeup(10000000);
-        ESP_LOGI(TAG, "Entering light sleep");
+    xTaskCreate(rx_task, "uart_rx_task", 1024*2, NULL, 5, NULL);
+    xTaskCreate(tx_task, "uart_tx_task", 1024*2, NULL, 4, NULL);
 
-        esp_wifi_stop();
-        /* To make sure the complete line is printed before entering sleep mode,
-         * need to wait until UART TX FIFO is empty:
-         */
-        uart_wait_tx_idle_polling(CONFIG_ESP_CONSOLE_UART_NUM);
-
-        /* Get timestamp before entering sleep */
-        int64_t t_before_us = esp_timer_get_time();
-        
-        /* Enter sleep mode */
-        esp_light_sleep_start();
-        /* Execution continues here after wakeup */
-        /* Get timestamp after waking up from sleep */
-        int64_t t_after_us = esp_timer_get_time();
-
-        /* Determine wake up reason */
-        const char* wakeup_reason;
-        switch (esp_sleep_get_wakeup_cause()) {
-            case ESP_SLEEP_WAKEUP_TIMER:
-                wakeup_reason = "timer";
-                break;
-            case ESP_SLEEP_WAKEUP_GPIO:
-                wakeup_reason = "pin";
-                break;
-            case ESP_SLEEP_WAKEUP_UART:
-                wakeup_reason = "UART";
-                break;
-            default:
-                wakeup_reason = "other";
-                break;
-        }
-        ESP_LOGI(TAG, "Returned from light sleep, reason: %s, t=%lld ms, slept for %lld ms\n",
-                wakeup_reason, t_after_us / 1000, (t_after_us - t_before_us) / 1000);
-
-        if ((ret = esp_wifi_start()) != ESP_OK) {
-            ESP_LOGI(TAG, "WiFi Start error: %d", ret);
-        }
-    }
+    vTaskDelay(pdMS_TO_TICKS(5000));
 }
