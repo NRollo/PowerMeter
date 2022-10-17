@@ -55,8 +55,8 @@ void tx_task(void *arg)
 
     esp_log_level_set(TX_TASK_TAG, ESP_LOG_INFO);
     while (1) {
+        vTaskDelay(pdMS_TO_TICKS(10000));
         sendData(TX_TASK_TAG, "Hello world");
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
 }
 
@@ -64,7 +64,7 @@ void rx_task(void *arg)
 {
     static const char *RX_TASK_TAG = "RX_TASK";
     int rxBytes = 0;
-    int uartWait = 15000;
+    int uartWait = 10000;
 
     esp_log_level_set(RX_TASK_TAG, ESP_LOG_INFO);
 
@@ -76,15 +76,10 @@ void rx_task(void *arg)
             ESP_LOGI(RX_TASK_TAG, "Read %d bytes: '%s'", rxBytes, data);
             ESP_LOG_BUFFER_HEXDUMP(RX_TASK_TAG, data, rxBytes, ESP_LOG_INFO);
             uartWait = 3000;
-        }
-        else {
-            if (rxBytes == 0) {
-                lightSleep();
-            }
-            else {
-                if (rxBytes < 0) {
-                    ESP_LOGE(RX_TASK_TAG, "Error from 'uart_read_bytes': %d", rxBytes);
-                }
+            lightSleep();
+        } else {
+            if (rxBytes < 0) {
+                ESP_LOGE(RX_TASK_TAG, "Error from 'uart_read_bytes': %d", rxBytes);
             }
         }
     }
