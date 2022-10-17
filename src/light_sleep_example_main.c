@@ -28,8 +28,6 @@
 #include "lwip/sockets.h"
 #include "esp_wifi.h"
 
-static const char *TAG = "SleepClient";
-
 extern void wifi_init_sta(void);
 extern void rx_task (void *arg);
 extern void tx_task(void *arg);
@@ -38,7 +36,8 @@ extern void UART_init(int uartNum);
 void app_main(void)
 {
     esp_log_level_set("wifi", ESP_LOG_ERROR);
-
+    esp_log_level_set("wifi station", ESP_LOG_ERROR);
+    esp_log_level_set("esp_netif_handlers", ESP_LOG_WARN);
     //Initialize NVS
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
