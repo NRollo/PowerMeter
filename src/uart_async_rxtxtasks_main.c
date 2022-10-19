@@ -18,7 +18,7 @@
 #include "esp_sleep.h"
 
 extern void lightSleep();
-
+extern int KamDecrypt(void);
 static const int RX_BUF_SIZE = 1024;
 static int uart_num;
 
@@ -83,7 +83,8 @@ void rx_task(void *arg)
             t_before_us = esp_timer_get_time();
 
             // TO DO: decrypt and upload Kamstrup data
-            vTaskDelay(pdMS_TO_TICKS(1000));
+            //vTaskDelay(pdMS_TO_TICKS(1000));
+            KamDecrypt();
 
             // Adjust time of light-sleep
             /* Get timestamp after processing */

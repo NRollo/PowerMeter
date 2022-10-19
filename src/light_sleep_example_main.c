@@ -49,7 +49,7 @@ void app_main(void)
     wifi_init_sta();
     UART_init(UART_NUM_1);
 
-    xTaskCreate(rx_task, "uart_rx_task", 1024*2, NULL, 5, NULL);
+    xTaskCreate(rx_task, "uart_rx_task", 1024*4, NULL, 5, NULL);
     xTaskCreate(tx_task, "uart_tx_task", 1024*2, NULL, 4, NULL);
 
     vTaskDelay(pdMS_TO_TICKS(5000));

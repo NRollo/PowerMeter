@@ -3,6 +3,27 @@
         "protocol_examples_common.h": "c",
         "task.h": "c",
         "esp_err.h": "c",
-        "esp_sleep.h": "c"
+        "esp_sleep.h": "c",
+        "gcm.h": "c",
+        "mbus-protocol.h": "c",
+        "array": "c",
+        "deque": "c",
+        "list": "c",
+        "map": "c",
+        "*.tcc": "c",
+        "set": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "vector": "c",
+        "mbus.h": "c",
+        "mbus-protocol-aux.h": "c",
+        "mbus-serial.h": "c",
+        "mbus-tcp.h": "c",
+        "cassert": "cpp",
+        "mbusparser.h": "c",
+        "cstddef": "c",
+        "cstring": "cpp",
+        "stdint.h": "c",
+        "stdlib.h": "c"
     }
 }
