@@ -1,10 +1,10 @@
 #ifndef MBUSPARSER_H
 #define MBUSPARSER_H
 
-#include "vec.h"
 #include "stdbool.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 struct MeterData {
   // Active Power +/-
@@ -83,6 +83,7 @@ struct MeterData {
   uint8_t listId;
   size_t parseResultBufferSize;
   size_t parseResultMessageSize;
+  struct tm DateTime;
 };
 
 struct MeterData parseMbusFrame(unsigned char *frame, int fLen);

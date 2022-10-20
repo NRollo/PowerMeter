@@ -1,6 +1,6 @@
 #include <string.h>
+#include <time.h>
 #include "mbusparser.h"
-#include "vec.h"
 
 void initMeterData(struct MeterData *MD) {
   MD->activePowerPlus = 0;
@@ -78,8 +78,78 @@ void initMeterData(struct MeterData *MD) {
   MD->listId = 0;
   MD->parseResultBufferSize = 0;
   MD->parseResultMessageSize = 0;
+  memset(&MD->DateTime, 0, sizeof(MD));
 }
 
+//------------------------------------------------------------------------------
+///
+/// Decode time data
+///
+/// Usable for the following types:
+///   I = 6 bytes (Date and time)
+///   F = 4 bytes (Date and time)
+///   G = 2 bytes (Date)
+///
+/// TODO:
+///   J = 3 bytes (Time)
+///
+//------------------------------------------------------------------------------
+void
+mbus_data_tm_decode(struct tm *t, unsigned char *t_data, size_t t_data_size)
+{
+    if (t == NULL)
+    {
+        return;
+    }
+
+    t->tm_sec   = 0;
+    t->tm_min   = 0;
+    t->tm_hour  = 0;
+    t->tm_mday  = 0;
+    t->tm_mon   = 0;
+    t->tm_year  = 0;
+    t->tm_wday  = 0;
+    t->tm_yday  = 0;
+    t->tm_isdst = 0;
+
+    if (t_data)
+    {
+        if (t_data_size == 6)                // Type I = Compound CP48: Date and Time
+        {
+            if ((t_data[1] & 0x80) == 0)     // Time valid ?
+            {
+                t->tm_sec   = t_data[0] & 0x3F;
+                t->tm_min   = t_data[1] & 0x3F;
+                t->tm_hour  = t_data[2] & 0x1F;
+                t->tm_mday  = t_data[3] & 0x1F;
+                t->tm_mon   = (t_data[4] & 0x0F) - 1;
+                t->tm_year  = 100 + (((t_data[3] & 0xE0) >> 5) |
+                              ((t_data[4] & 0xF0) >> 1));
+                t->tm_isdst = (t_data[0] & 0x40) ? 1 : 0;  // day saving time
+            }
+        }
+        else if (t_data_size == 4)           // Type F = Compound CP32: Date and Time
+        {
+            if ((t_data[0] & 0x80) == 0)     // Time valid ?
+            {
+                t->tm_min   = t_data[0] & 0x3F;
+                t->tm_hour  = t_data[1] & 0x1F;
+                t->tm_mday  = t_data[2] & 0x1F;
+                t->tm_mon   = (t_data[3] & 0x0F) - 1;
+                t->tm_year  = 100 + (((t_data[2] & 0xE0) >> 5) |
+                              ((t_data[3] & 0xF0) >> 1));
+                t->tm_isdst = (t_data[1] & 0x80) ? 1 : 0;  // day saving time
+            }
+        }
+        else if (t_data_size == 2)           // Type G: Compound CP16: Date
+        {
+            t->tm_mday = t_data[0] & 0x1F;
+            t->tm_mon  = (t_data[1] & 0x0F) - 1;
+            t->tm_year = 100 + (((t_data[0] & 0xE0) >> 5) |
+                         ((t_data[1] & 0xF0) >> 1));
+        }
+    }
+}
 
 size_t find(unsigned char *f, unsigned char *needle, uint8_t fLen, uint8_t nLen)
 {
@@ -213,15 +283,22 @@ struct MeterData result;
 struct MeterData parseMbusFrame(unsigned char *frame, int fLen)
 {
   initMeterData(&result);
+  unsigned char tmFrame[5];
   unsigned char frameFormat = ((frame[1]) & 0xF0);
   size_t messageSize = (((frame[1] & 0x0F) << 8) | frame[2]);
   result.parseResultBufferSize = fLen;
   result.parseResultMessageSize = messageSize;
   unsigned char needle[] = { 0xff, 0x80, 0x00, 0x00 };
+
+  // Get the List ID and timestamp
   size_t dateTimeEnd = find(frame, needle, fLen, sizeof(needle));
   if (dateTimeEnd > 0) {
     result.listId = (frame[dateTimeEnd + 5] & 0xF0) >> 4;
   }
+  for (int i = 0; i < sizeof(tmFrame); i++) {
+    tmFrame[i] = frame[dateTimeEnd - 1 - i];
+  }
+  mbus_data_tm_decode(&result.DateTime, tmFrame, 6);
 
   if (frame[0] == 0x7E && (frame[fLen - 1]) == 0x7E) {
     if (frameFormat == 0xA0) {
