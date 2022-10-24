@@ -32,6 +32,7 @@ extern void wifi_init_sta(void);
 extern void rx_task (void *arg);
 extern void tx_task(void *arg);
 extern void UART_init(int uartNum);
+extern void mqtt_app_start(void);
 
 void app_main(void)
 {
@@ -48,6 +49,7 @@ void app_main(void)
 
     wifi_init_sta();
     UART_init(UART_NUM_1);
+    mqtt_app_start();
 
     xTaskCreate(rx_task, "uart_rx_task", 1024*5, NULL, 5, NULL);
     //xTaskCreate(tx_task, "uart_tx_task", 1024*2, NULL, 4, NULL);
