@@ -88,6 +88,6 @@ int KamDecrypt(unsigned char *cipher_text, int cipher_textLen) {
     free(cipher);
     free(output);
 
-    ESP_LOG_BUFFER_HEXDUMP(TAG, cipher_text, cipher_textLen, ESP_LOG_INFO);
+    //ESP_LOG_BUFFER_HEXDUMP(TAG, cipher_text, cipher_textLen, ESP_LOG_INFO);
     return res;
 }

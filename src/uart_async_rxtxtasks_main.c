@@ -87,18 +87,18 @@ void rx_task(void *arg)
     static const char *RX_TASK_TAG = "RX_TASK";
     static int64_t t_before_us = 0;
     static int64_t t_after_us = 0;
-    uint64_t lightSleepTime = 8000000;
+    uint64_t lightSleepTime = 6000000;
     int rxBytes = 0;
 
     esp_log_level_set(RX_TASK_TAG, ESP_LOG_DEBUG);
 
     uint8_t* data = (uint8_t*) malloc(RX_BUF_SIZE+1);
     while (1) {
-        rxBytes = uart_read_bytes(uart_num, data, RX_BUF_SIZE, pdMS_TO_TICKS(500));        
+        rxBytes = uart_read_bytes(uart_num, data, RX_BUF_SIZE, pdMS_TO_TICKS(600));        
         if (rxBytes > 0) {
             data[rxBytes] = 0;
-            ESP_LOGI(RX_TASK_TAG, "Read %d bytes: '%s'", rxBytes, data);
-            ESP_LOG_BUFFER_HEXDUMP(RX_TASK_TAG, data, rxBytes, ESP_LOG_INFO);
+            ESP_LOGI(RX_TASK_TAG, "Read %d bytes", rxBytes);
+            //ESP_LOG_BUFFER_HEXDUMP(RX_TASK_TAG, data, rxBytes, ESP_LOG_INFO);
 
             /* Get timestamp before processing */
             t_before_us = esp_timer_get_time();
@@ -111,13 +111,13 @@ void rx_task(void *arg)
             // Adjust time of light-sleep
             /* Get timestamp after processing */
             t_after_us = esp_timer_get_time();
-            lightSleepTime = 8000000 - (t_after_us - t_before_us);
+            lightSleepTime = 6000000 - (t_after_us - t_before_us);
             ESP_LOGI(RX_TASK_TAG, "Entering light sleep for: %lld uS Diff: %lld uS", lightSleepTime, (t_after_us - t_before_us));
             esp_sleep_enable_timer_wakeup(lightSleepTime);
 
             // Test needs to use vTaskDelay as light-sleep stops the TX task
-            vTaskDelay(pdMS_TO_TICKS(lightSleepTime / 1000));
-            //lightSleep();
+            //vTaskDelay(pdMS_TO_TICKS(lightSleepTime / 1000));
+            lightSleep();
             ESP_LOGI(RX_TASK_TAG, "Exiting light sleep!");
         } else {
             if (rxBytes < 0) {

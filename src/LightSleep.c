@@ -5,14 +5,17 @@
 #include "driver/uart.h"
 #include <sys/time.h>
 #include <time.h>
+#include "mqtt_client.h"
 
 static const char *TAG = "SleepHandler";
+extern esp_mqtt_client_handle_t MqttClient;
     
 void lightSleep()
 {
     esp_err_t ret;
 
     // Stop the wifi before entering light-sleep
+    esp_mqtt_client_stop(MqttClient);
     esp_wifi_stop();
 
     /* To make sure the complete line is printed before entering sleep mode,
@@ -45,4 +48,6 @@ void lightSleep()
     if ((ret = esp_wifi_start()) != ESP_OK) {
         ESP_LOGE(TAG, "WiFi Start error: %d", ret);
     }
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    esp_mqtt_client_start(MqttClient);
 }
