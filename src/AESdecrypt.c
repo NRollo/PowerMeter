@@ -3,10 +3,12 @@
 #include <string.h>
 #include "mbedtls/gcm.h"
 #include "esp_log.h"
+#include "mbusparser.h"
 
 static const char *TAG = "DE-CRYPT";
 
-extern int mbusParseFrame(unsigned char *vframe, int vframeLen );
+//extern int mbusParseFrame(unsigned char *vframe, int vframeLen );
+extern int PublishMqtt(struct MeterData md);
 
 /*
 // Test message
@@ -83,7 +85,10 @@ int KamDecrypt(unsigned char *cipher_text, int cipher_textLen) {
     // Parse the de-crypted frame
     if (res == 0) {
         memcpy(cipher_text + headerSize + 18, output, cipherlen);
-        mbusParseFrame(cipher_text, cipher_textLen);
+        //mbusParseFrame(cipher_text, cipher_textLen);
+        struct MeterData md = parseMbusFrame(cipher_text, cipher_textLen);
+        // Publish to the Mqtt server
+        PublishMqtt(md);
     }
     free(cipher);
     free(output);

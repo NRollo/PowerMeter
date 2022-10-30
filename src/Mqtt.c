@@ -84,12 +84,12 @@ int PublishMqtt(struct MeterData md) {
     if (md.activePowerPlusValid)
     {
         sprintf(buf, "%d",  md.activePowerPlus);
-        msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerPlus", buf, 0, 1, 0);
+        msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerPlus", buf, 0, 1, 1);
     }
     if (md.activePowerMinusValid)
     {
         sprintf(buf, "%d",  md.activePowerMinus);
-        msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerMinus", buf, 0, 1, 0);
+        msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerMinus", buf, 0, 1, 1);
     }
     if (md.activePowerPlusValidL1)
     {
