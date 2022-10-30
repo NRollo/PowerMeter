@@ -3,6 +3,8 @@
 #include "mbusparser.h"
 
 static const char *TAG = "MQTT";
+
+// YOUR MQTT URL e.g.:
 #define CONFIG_BROKER_URL "192.168.0.71"
 
 extern struct MeterData parseMbusFrame(unsigned char *frame, int fLen);
@@ -242,8 +244,8 @@ void mqtt_app_start(void)
 {
     esp_mqtt_client_config_t mqtt_cfg = {
         .client_id = "PowerMeter",
-        .username = "IOT",
-        .password = "Mondeo",
+        .username = "YOUR MQTT USER NAME",
+        .password = "YOUR MQTT PASSWORD",
         .port = 1883,
         .host = CONFIG_BROKER_URL,
     };

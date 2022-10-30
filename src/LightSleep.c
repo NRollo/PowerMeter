@@ -14,7 +14,7 @@ void lightSleep()
 {
     esp_err_t ret;
 
-    // Stop the wifi before entering light-sleep
+    // Stop the wifi and mqtt client before entering light-sleep
     esp_mqtt_client_stop(MqttClient);
     esp_wifi_stop();
 
@@ -48,6 +48,7 @@ void lightSleep()
     if ((ret = esp_wifi_start()) != ESP_OK) {
         ESP_LOGE(TAG, "WiFi Start error: %d", ret);
     }
+    // Wait for the wifi to start after light sleep
     vTaskDelay(pdMS_TO_TICKS(2000));
     esp_mqtt_client_start(MqttClient);
 }
