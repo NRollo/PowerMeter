@@ -26,6 +26,6 @@ There are several individual needs in the code that must to be configured before
  - The URL, username and password for the MQTT server (in 'Mqtt.c', lines 8, 247 and 248)
  - The two private decryption keys (in 'AESdecrypt.c', line 37 and 38)
  
- Make sense to put this in a .h configuration file (this is put in the backlog).
+ Make sense to put this in a .h configuration file (backlog).
 
 
