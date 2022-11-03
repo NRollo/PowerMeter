@@ -23,8 +23,8 @@ The software is based on the ESP-IDF framework on the VSCODE IDE with the PLATFO
 # Integration
 There are several individual needs in the code that must to be configured before implementation:
  - Wifi SSID and password (in 'station_example_main.c', line 27 and 28)
- - The URL, username and password for the MQTT server (in 'Mqtt.c', lines 8, 247 and 248)
- - The two private decryption keys (in 'AESdecrypt.c', line 37 and 38)
+ - The URL, username and password for the MQTT server (in 'Mqtt.c', lines 8, 249 and 250)
+ - The two private decryption keys (in 'AESdecrypt.c', line 38 and 39)
  
  Make sense to put this in a .h configuration file (backlog).
 
