@@ -52,6 +52,8 @@ void app_main(void)
     mqtt_app_start();
 
     xTaskCreate(rx_task, "uart_rx_task", 1024*5, NULL, 5, NULL);
+    
+    // The TX task is used during testing
     //xTaskCreate(tx_task, "uart_tx_task", 1024*2, NULL, 4, NULL);
 
     vTaskDelay(pdMS_TO_TICKS(5000));

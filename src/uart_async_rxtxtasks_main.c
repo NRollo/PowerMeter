@@ -17,7 +17,9 @@
 #include "esp_err.h"
 #include "esp_sleep.h"
 #include "mbusparser.h"
-/*
+
+// Encrypted test message
+/* 
 unsigned char cipher_text[] = {0x7E, 0xA1, 0xE9, 0x41, 0x03, 0x13, 0xC6, 0x37, 0xE6, 0xE7, 0x00, 0xDB, 0x08, 0x4B, 0x41, 0x4D, 0x45, 0x01, 0xA4, 0xDC, 0x52, 0x82, 0x01, 0xD0, 0x30, 0x00, 0x07, 0x88, 0xE1, 0xA0, 0x39, 0xB2, 0xD1, 0x4C, 0x71, 0x2D, 0xD4, 0xD8, 0xC8, 0x44, 0x0D, 0x53, 0x68,
                                0xE4, 0x33, 0xBD, 0x70, 0xB7, 0x36, 0x81, 0xE9, 0xA9, 0xEF, 0xFE, 0x38, 0xF1, 0x75, 0xA3, 0x7D, 0xE9, 0xCD, 0xE6, 0x4E, 0x8F, 0x78, 0x0D, 0x8F, 0x18, 0xB4, 0x3F, 0xC0, 0x59, 0xD8, 0x79, 0x02,
                                0xF3, 0xD7, 0x47, 0xB8, 0x14, 0xBC, 0xD0, 0x6A, 0x47, 0x00, 0x68, 0x78, 0x01, 0xBD, 0x5D, 0x06, 0x61, 0x20, 0x54, 0x50, 0x7D, 0x44, 0xE7, 0x66, 0x98, 0xCC, 0x3E, 0x35, 0xCC, 0x9D, 0xE6, 0x2C,
@@ -38,7 +40,6 @@ unsigned char cipher_text[] = {0x7E, 0xA1, 0xE9, 0x41, 0x03, 0x13, 0xC6, 0x37, 0
 extern void lightSleep();
 extern int KamDecrypt(unsigned char *cipher_text, int cipher_textLen);
 extern int PublishMqtt(struct MeterData md);
-//extern int KamDecrypt(void);
 
 static const int RX_BUF_SIZE = 500;
 static int uart_num;
@@ -57,6 +58,7 @@ void UART_init(int uartNum) {
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .source_clk = UART_SCLK_APB,
     };
+
     // We won't use a buffer for sending data.
     uart_driver_install(uart_num, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
     uart_param_config(uart_num, &uart_config);
@@ -103,11 +105,9 @@ void rx_task(void *arg)
             /* Get timestamp before processing */
             t_before_us = esp_timer_get_time();
 
-            // TO DO: decrypt and upload Kamstrup data
-            //vTaskDelay(pdMS_TO_TICKS(1000));
+            // Decrypt and upload Kamstrup data
             KamDecrypt(data, rxBytes);
 
-            //KamDecrypt(cipher_text, sizeof(cipher_text));
             // Adjust time of light-sleep
             /* Get timestamp after processing */
             t_after_us = esp_timer_get_time();
@@ -115,8 +115,8 @@ void rx_task(void *arg)
             ESP_LOGI(RX_TASK_TAG, "Entering light sleep for: %lld uS Diff: %lld uS", lightSleepTime, (t_after_us - t_before_us));
             esp_sleep_enable_timer_wakeup(lightSleepTime);
 
-            // Test needs to use vTaskDelay as light-sleep stops the TX task
-            //vTaskDelay(pdMS_TO_TICKS(lightSleepTime / 1000));
+            // During test we need to use vTaskDelay as light-sleep stops the TX task
+            // vTaskDelay(pdMS_TO_TICKS(lightSleepTime / 1000));
             lightSleep();
             ESP_LOGI(RX_TASK_TAG, "Exiting light sleep!");
         } else {

@@ -79,6 +79,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     }
 }
 
+// Publish all the valid topics comming from the power meter
 int PublishMqtt(struct MeterData md) {
     char buf[30] = "\000";
     int msg_id = 0;
@@ -240,6 +241,7 @@ int PublishMqtt(struct MeterData md) {
     return msg_id;
 }
 
+// Initialize the mqtt client
 void mqtt_app_start(void)
 {
     esp_mqtt_client_config_t mqtt_cfg = {

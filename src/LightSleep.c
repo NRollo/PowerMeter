@@ -19,8 +19,8 @@ void lightSleep()
     esp_wifi_stop();
 
     /* To make sure the complete line is printed before entering sleep mode,
-        * need to wait until UART TX FIFO is empty:
-        */
+    *  need to wait until UART TX FIFO is empty:
+    */
     uart_wait_tx_idle_polling(CONFIG_ESP_CONSOLE_UART_NUM);
     
     /* Enter sleep mode */
