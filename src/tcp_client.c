@@ -26,6 +26,7 @@
 extern void GetTempTask(void *data);
 extern void PublishMqttTask(void *pvParameters);
 
+// Semaphor when getting the current temperature
 SemaphoreHandle_t mtexCurrentTemp = NULL;
 
 // The error LED
