@@ -26,7 +26,7 @@ static void log_error_if_nonzero(const char *message, int error_code)
  */
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
-    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
+    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%ld", base, event_id);
     esp_mqtt_event_handle_t event = event_data;
     /*
     esp_mqtt_client_handle_t client = event->client;
@@ -79,11 +79,11 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 void mqtt_app_start(void)
 {
     esp_mqtt_client_config_t mqtt_cfg = {
-        .client_id = "TempSensor",
-        .username = "IOT",
-        .password = "Mondeo",
-        .port = 1883,
-        .host = CONFIG_BROKER_URL,
+        .credentials.client_id = "TempSensor",
+        .credentials.username = "IOT",
+        .credentials.authentication.password = "Mondeo",
+        .broker.address.port = 1883,
+        .broker.address.hostname = CONFIG_BROKER_URL,
     };
 
     MqttClient = esp_mqtt_client_init(&mqtt_cfg);

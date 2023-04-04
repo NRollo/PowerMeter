@@ -61,22 +61,28 @@ sample code bearing this copyright.
 #include "driver/rmt.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "soc/gpio_periph.h"    // for GPIO_PIN_MUX_REG
 
 #undef OW_DEBUG
 
 
 // bus reset: duration of low phase [us]
 #define OW_DURATION_RESET 480
+
 // overall slot duration
 #define OW_DURATION_SLOT 75
+
 // write 1 slot and read slot durations [us]
-#define OW_DURATION_1_LOW    2
+#define OW_DURATION_1_LOW    6
 #define OW_DURATION_1_HIGH (OW_DURATION_SLOT - OW_DURATION_1_LOW)
+
 // write 0 slot durations [us]
 #define OW_DURATION_0_LOW   65
 #define OW_DURATION_0_HIGH (OW_DURATION_SLOT - OW_DURATION_0_LOW)
+
 // sample time for read slot
 #define OW_DURATION_SAMPLE  (15-2)
+
 // RX idle threshold
 // needs to be larger than any duration occurring during write slots
 #define OW_DURATION_RX_IDLE (OW_DURATION_SLOT + 2)
@@ -281,7 +287,7 @@ static owb_status _read_bits(const OneWireBus * bus, uint8_t *in, int number_of_
     if (rmt_write_items(info->tx_channel, tx_items, number_of_bits_to_read+1, true) == ESP_OK)
     {
         size_t rx_size = 0;
-        rmt_item32_t* rx_items = (rmt_item32_t *)xRingbufferReceive(info->rb, &rx_size, portMAX_DELAY);
+        rmt_item32_t *rx_items = (rmt_item32_t *)xRingbufferReceive(info->rb, &rx_size, 100 / portTICK_PERIOD_MS);
 
         if (rx_items)
         {
@@ -386,6 +392,7 @@ static owb_status _init(owb_rmt_driver_info *info, gpio_num_t gpio_num,
     {
         if (rmt_driver_install(rmt_tx.channel, 0, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM | ESP_INTR_FLAG_SHARED) == ESP_OK)
         {
+            rmt_set_source_clk(rmt_tx.channel, RMT_BASECLK_APB);  // only APB is supported by IDF 4.2
             rmt_config_t rmt_rx = {0};
             rmt_rx.channel = info->rx_channel;
             rmt_rx.gpio_num = gpio_num;
@@ -399,6 +406,7 @@ static owb_status _init(owb_rmt_driver_info *info, gpio_num_t gpio_num,
             {
                 if (rmt_driver_install(rmt_rx.channel, 512, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM | ESP_INTR_FLAG_SHARED) == ESP_OK)
                 {
+                    rmt_set_source_clk(rmt_rx.channel, RMT_BASECLK_APB);  // only APB is supported by IDF 4.2
                     rmt_get_ringbuf_handle(info->rx_channel, &info->rb);
                     status = OWB_STATUS_OK;
                 }
@@ -437,8 +445,8 @@ static owb_status _init(owb_rmt_driver_info *info, gpio_num_t gpio_num,
     // attach RMT channels to new gpio pin
     // ATTENTION: set pin for rx first since gpio_output_disable() will
     //            remove rmt output signal in matrix!
-    rmt_set_gpio(info->rx_channel, RMT_MODE_RX, gpio_num, false);
-    rmt_set_gpio(info->tx_channel, RMT_MODE_TX, gpio_num, false);
+    rmt_set_gpio(info->rx_channel, RMT_MODE_RX, gpio_num, 0);
+    rmt_set_gpio(info->tx_channel, RMT_MODE_TX, gpio_num, 0);
 
     // force pin direction to input to enable path to RX channel
     PIN_INPUT_ENABLE(GPIO_PIN_MUX_REG[gpio_num]);

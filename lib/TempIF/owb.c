@@ -38,6 +38,7 @@
 #include "esp_log.h"
 #include "sdkconfig.h"
 #include "driver/gpio.h"
+#include "rom/gpio.h"       // for gpio_pad_select_gpio()
 
 #include "owb.h"
 #include "owb_gpio.h"
@@ -472,8 +473,7 @@ owb_status owb_reset(const OneWireBus * bus, bool * a_device_present)
     }
     else
     {
-        bus->driver->reset(bus, a_device_present);
-        status = OWB_STATUS_OK;
+        status = bus->driver->reset(bus, a_device_present);
     }
 
     return status;

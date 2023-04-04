@@ -41,6 +41,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
+#include "esp_timer.h"      // for esp_timer_get_time()
 #include "esp_system.h"
 #include "esp_log.h"
 
@@ -281,6 +282,10 @@ static DS18B20_ERROR _read_scratchpad(const DS18B20_Info * ds18b20_info, Scratch
             ESP_LOGE(TAG, "owb_write_byte failed");
             err = DS18B20_ERROR_OWB;
         }
+    }
+    else
+    {
+        err = DS18B20_ERROR_DEVICE;
     }
     return err;
 }
@@ -528,6 +533,13 @@ DS18B20_ERROR ds18b20_read_temp(const DS18B20_Info * ds18b20_info, float * value
         {
             temp_LSB = scratchpad.temperature[0];
             temp_MSB = scratchpad.temperature[1];
+        }
+
+        // https://github.com/cpetrich/counterfeit_DS18B20#solution-to-the-85-c-problem
+        if (scratchpad.reserved[1] == 0x0c && temp_MSB == 0x05 && temp_LSB == 0x50)
+        {
+            ESP_LOGE(TAG, "Read power-on value (85.0)");
+            err = DS18B20_ERROR_DEVICE;
         }
 
         float temp = _decode_temp(temp_LSB, temp_MSB, ds18b20_info->resolution);

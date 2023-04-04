@@ -47,7 +47,7 @@ void app_main(void)
                             .pin_bit_mask = (1ULL<<FAN) | (1ULL<<ERROR_LED),
                             .pull_down_en = 0,
                             .pull_up_en = 0,
-                            .intr_type = GPIO_PIN_INTR_DISABLE,
+                            .intr_type = GPIO_INTR_DISABLE,
                           };
     // Make sure the FAN is off and the ERROR LED is on before the GPIO is configured
     gpio_set_level(FAN, FAN_OFF);
