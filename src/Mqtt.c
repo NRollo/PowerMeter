@@ -30,7 +30,7 @@ static void log_error_if_nonzero(const char *message, int error_code)
  */
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
-    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
+    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%ld", base, event_id);
     esp_mqtt_event_handle_t event = event_data;
     /*
     esp_mqtt_client_handle_t client = event->client;
@@ -86,155 +86,155 @@ int PublishMqtt(struct MeterData md) {
 
     if (md.activePowerPlusValid)
     {
-        sprintf(buf, "%d",  md.activePowerPlus);
+        sprintf(buf, "%ld",  md.activePowerPlus);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerPlus", buf, 0, 1, 1);
     }
     if (md.activePowerMinusValid)
     {
-        sprintf(buf, "%d",  md.activePowerMinus);
+        sprintf(buf, "%ld",  md.activePowerMinus);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerMinus", buf, 0, 1, 1);
     }
     if (md.activePowerPlusValidL1)
     {
-        sprintf(buf, "%d",  md.activePowerPlusL1);
+        sprintf(buf, "%ld",  md.activePowerPlusL1);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerPlusL1", buf, 0, 1, 0);
     }
     if (md.activePowerMinusValidL1)
     {
-        sprintf(buf, "%d",  md.activePowerMinusL1);
+        sprintf(buf, "%ld",  md.activePowerMinusL1);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerMinusL1", buf, 0, 1, 0);
     }
     if (md.activePowerPlusValidL2)
     {
-        sprintf(buf, "%d",  md.activePowerPlusL2);
+        sprintf(buf, "%ld",  md.activePowerPlusL2);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerPlusL2", buf, 0, 1, 0);
     }
     if (md.activePowerMinusValidL2)
     {
-        sprintf(buf, "%d",  md.activePowerMinusL2);
+        sprintf(buf, "%ld",  md.activePowerMinusL2);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerMinusL2", buf, 0, 1, 0);
     }
     if (md.activePowerPlusValidL3)
     {
-    sprintf(buf, "%d",  md.activePowerPlusL3);
+    sprintf(buf, "%ld",  md.activePowerPlusL3);
     msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerPlusL3", buf, 0, 1, 0);
     }
     if (md.activePowerMinusValidL3)
     {        
-    sprintf(buf, "%d",  md.activePowerMinusL3);
+    sprintf(buf, "%ld",  md.activePowerMinusL3);
     msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/activePowerMinusL3", buf, 0, 1, 0);
     }
     if (md.reactivePowerPlusValid)
     {
-    sprintf(buf, "%d",  md.reactivePowerPlus);
+    sprintf(buf, "%ld",  md.reactivePowerPlus);
     msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/reactivePowerPlus", buf, 0, 1, 0);
     }
     if (md.reactivePowerMinusValid)
     {
-    sprintf(buf, "%d",  md.reactivePowerMinus);
+    sprintf(buf, "%ld",  md.reactivePowerMinus);
     msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/reactivePowerMinus", buf, 0, 1, 0);
     }
 
     if (md.powerFactorValidL1)
-    sprintf(buf, "%d",  md.powerFactorL1);
+    sprintf(buf, "%ld",  md.powerFactorL1);
     msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/powerFactorL1", buf, 0, 1, 0);
     if (md.powerFactorValidL2)
     {
-        sprintf(buf, "%d",  md.powerFactorL2);
+        sprintf(buf, "%ld",  md.powerFactorL2);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/powerFactorL2", buf, 0, 1, 0);
     }
     if (md.powerFactorValidL3)
     {
-        sprintf(buf, "%d",  md.powerFactorL3);
+        sprintf(buf, "%ld",  md.powerFactorL3);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/powerFactorL3", buf, 0, 1, 0);
     }
     if (md.powerFactorTotalValid)
     {
-        sprintf(buf, "%d",  md.powerFactorTotal);
+        sprintf(buf, "%ld",  md.powerFactorTotal);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/power/powerFactorTotal", buf, 0, 1, 0);
     }
 
     if (md.voltageL1Valid)
     {
-        sprintf(buf, "%d",  md.voltageL1);
+        sprintf(buf, "%ld",  md.voltageL1);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/voltage/L1", buf, 0, 1, 0);
     }
     if (md.voltageL2Valid)
     {
-        sprintf(buf, "%d",  md.voltageL2);
+        sprintf(buf, "%ld",  md.voltageL2);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/voltage/L2", buf, 0, 1, 0);
     }
     if (md.voltageL3Valid)
     {
-        sprintf(buf, "%d",  md.voltageL3);
+        sprintf(buf, "%ld",  md.voltageL3);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/voltage/L3", buf, 0, 1, 0);
     }
 
     if (md.centiAmpereL1Valid)
     {
-        sprintf(buf, "%d",  md.centiAmpereL1 / 100);
+        sprintf(buf, "%ld",  md.centiAmpereL1 / 100);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/current/L1", buf, 0, 1, 0);
     }
     if (md.centiAmpereL2Valid)
     {
-        sprintf(buf, "%d",  md.centiAmpereL2 / 100);
+        sprintf(buf, "%ld",  md.centiAmpereL2 / 100);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/current/L2", buf, 0, 1, 0);
     }
     if (md.centiAmpereL3Valid)
     {
-        sprintf(buf, "%d",  md.centiAmpereL3 / 100);
+        sprintf(buf, "%ld",  md.centiAmpereL3 / 100);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/current/L3", buf, 0, 1, 0);
     }
 
     if (md.activeImportWhValid)
     {
-        sprintf(buf, "%d",  md.activeImportWh / 1000);
+        sprintf(buf, "%ld",  md.activeImportWh / 1000);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/energy/activeImportKWh", buf, 0, 1, 0);
     }
     if (md.activeExportWhValid)
     {
-        sprintf(buf, "%d",  md.activeExportWh / 1000);
+        sprintf(buf, "%ld",  md.activeExportWh / 1000);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/energy/activeExportKWh", buf, 0, 1, 0);
     }
     if (md.activeImportWhValidL1)
     {
-        sprintf(buf, "%d",  md.activeImportWhL1 / 1000);
+        sprintf(buf, "%ld",  md.activeImportWhL1 / 1000);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/energy/activeImportKWhL1", buf, 0, 1, 0);
     }
     if (md.activeExportWhValidL1)
     {
-        sprintf(buf, "%d",  md.activeExportWhL1 / 1000);
+        sprintf(buf, "%ld",  md.activeExportWhL1 / 1000);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/energy/activeExportKWhL1", buf, 0, 1, 0);
     }
     if (md.activeImportWhValidL2)
     {
-        sprintf(buf, "%d",  md.activeImportWhL2 / 1000);
+        sprintf(buf, "%ld",  md.activeImportWhL2 / 1000);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/energy/activeImportKWhL2", buf, 0, 1, 0);
     }
     if (md.activeExportWhValidL2)
     {
-        sprintf(buf, "%d",  md.activeExportWhL2 / 1000);
+        sprintf(buf, "%ld",  md.activeExportWhL2 / 1000);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/energy/activeExportKWhL2", buf, 0, 1, 0);
     }
     if (md.activeImportWhValidL3)
     {
-        sprintf(buf, "%d",  md.activeImportWhL3 / 1000);
+        sprintf(buf, "%ld",  md.activeImportWhL3 / 1000);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/energy/activeImportKWhL3", buf, 0, 1, 0);
     }
     if (md.activeExportWhValidL3)
     {
-        sprintf(buf, "%d",  md.activeExportWhL3 / 1000);
+        sprintf(buf, "%ld",  md.activeExportWhL3 / 1000);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/energy/activeExportKWhL3", buf, 0, 1, 0);
     }
 
     if (md.reactiveImportWhValid)
     {
-        sprintf(buf, "%d",  md.reactiveImportWh / 1000);
+        sprintf(buf, "%ld",  md.reactiveImportWh / 1000);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/energy/reactiveImportKWh", buf, 0, 1, 0);
     }
     if (md.reactiveExportWhValid)
     {
-        sprintf(buf, "%d",  md.reactiveExportWh / 1000);
+        sprintf(buf, "%ld",  md.reactiveExportWh / 1000);
         msg_id = esp_mqtt_client_publish(MqttClient, "/PowerMeter/energy/reactiveExportKWh", buf, 0, 1, 0);
     }
 
@@ -245,11 +245,11 @@ int PublishMqtt(struct MeterData md) {
 void mqtt_app_start(void)
 {
     esp_mqtt_client_config_t mqtt_cfg = {
-        .client_id = "PowerMeter",
-        .username = "YOUR MQTT USER NAME",
-        .password = "YOUR MQTT PASSWORD",
-        .port = 1883,
-        .host = CONFIG_BROKER_URL,
+        .credentials.client_id = "PowerMeter",
+        .credentials.username = "YOUR MQTT USER NAME",
+        .credentials.authentication.password = "YOUR MQTT PASSWORD",
+        .broker.address.port = 1883,
+        .broker.address.hostname = CONFIG_BROKER_URL,
     };
 
     MqttClient = esp_mqtt_client_init(&mqtt_cfg);

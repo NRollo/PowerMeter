@@ -26,6 +26,7 @@
         "stdint.h": "c",
         "stdlib.h": "c",
         "umqttbroker.h": "c",
-        "mqtt_client.h": "c"
+        "mqtt_client.h": "c",
+        "esp_config.h": "c"
     }
 }
