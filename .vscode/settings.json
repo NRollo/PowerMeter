@@ -1,8 +1,16 @@
 {
     "files.associations": {
         "esp_log.h": "c",
+<<<<<<< HEAD
         "gpio.h": "c",
         "semphr.h": "c",
         "esp_intr_alloc.h": "c"
+=======
+        "owb.h": "c",
+        "esp_timer.h": "c",
+        "gpio.h": "c",
+        "rmt.h": "c",
+        "gpio_types.h": "c"
+>>>>>>> 5e568987bb83cd26267815ab9927c636d8978d3a
     }
 }
