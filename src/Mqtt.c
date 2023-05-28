@@ -90,19 +90,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 void mqtt_app_start(void)
 {
     esp_mqtt_client_config_t mqtt_cfg = {
-<<<<<<< HEAD
         .credentials.client_id = "GasSensor",
-=======
-        .credentials.client_id = "TempSensor",
->>>>>>> 5e568987bb83cd26267815ab9927c636d8978d3a
         .credentials.username = "IOT",
         .credentials.authentication.password = "Mondeo",
         .broker.address.port = 1883,
         .broker.address.hostname = CONFIG_BROKER_URL,
-<<<<<<< HEAD
         .broker.address.transport = MQTT_TRANSPORT_OVER_TCP
-=======
->>>>>>> 5e568987bb83cd26267815ab9927c636d8978d3a
     };
 
     MqttClient = esp_mqtt_client_init(&mqtt_cfg);
@@ -120,16 +113,9 @@ void PublishMqttTask(void *pvParameters) {
     mqtt_app_start();
 
     while(1) {
-<<<<<<< HEAD
         GetCurrentGas(&Gas);
         sprintf(buf, "%d", Gas);
         msg_id = esp_mqtt_client_publish(MqttClient, "/Gasfyr/OnOff", buf, 0, 1, 1);
-=======
-        GetCurrentTemp(&temp);
-        sprintf(buf, "%.1f", temp);
-        gpio_set_level(ERROR_LED, LED_ON);
-        msg_id = esp_mqtt_client_publish(MqttClient, "/Temp/Skur", buf, 0, 1, 1);
->>>>>>> 5e568987bb83cd26267815ab9927c636d8978d3a
         if (msg_id < 0) {
             ESP_LOGE(TAG, "Gas sensor 'FlameOnOff' not published: %d", msg_id);
         }
