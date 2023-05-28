@@ -23,11 +23,12 @@
 #include "lwip/sockets.h"
 #include "driver/gpio.h"
 
-extern void GetTempTask(void *data);
+extern void GetGasOnTask(void *data);
 extern void PublishMqttTask(void *pvParameters);
 
-// Semaphor when getting the current temperature
-SemaphoreHandle_t mtexCurrentTemp = NULL;
+// Semaphor when getting the flame on status
+SemaphoreHandle_t mtexCurrentGas = NULL;
+SemaphoreHandle_t mtexCurrentDuty = NULL;
 
 // The error LED
 #define ERROR_LED GPIO_NUM_2
@@ -47,17 +48,26 @@ void app_main(void)
                             .pin_bit_mask = (1ULL<<FAN) | (1ULL<<ERROR_LED),
                             .pull_down_en = 0,
                             .pull_up_en = 0,
-                            .intr_type = GPIO_PIN_INTR_DISABLE,
+                            .intr_type = GPIO_INTR_DISABLE,
                           };
     // Make sure the FAN is off and the ERROR LED is on before the GPIO is configured
     gpio_set_level(FAN, FAN_OFF);
     gpio_set_level(ERROR_LED, LED_ON);
     gpio_config(&IOpin);
 
+    IOpin.mode = GPIO_MODE_INPUT;
+    IOpin.pin_bit_mask = (1ULL << GPIO_NUM_34);
+    IOpin.pull_down_en = 0;
+    IOpin.pull_up_en = 0;
+    IOpin.intr_type = GPIO_INTR_NEGEDGE;
+    gpio_config(&IOpin);
+
+
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-	configASSERT(mtexCurrentTemp = xSemaphoreCreateMutex());
+	configASSERT(mtexCurrentGas = xSemaphoreCreateMutex());
+	configASSERT(mtexCurrentDuty = xSemaphoreCreateMutex());
 
     /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
      * Read "Establishing Wi-Fi or Ethernet Connection" section in
@@ -65,7 +75,7 @@ void app_main(void)
      */
     ESP_ERROR_CHECK(example_connect());
 
-    xTaskCreate(GetTempTask, "Temperature", 3000, NULL, 5, NULL);
+    xTaskCreate(GetGasOnTask, "GetGasOnOff", 3000, NULL, 5, NULL);
     xTaskCreate(PublishMqttTask, "mqtt_client", 4096, NULL, 3, NULL);
 
     gpio_set_level(ERROR_LED, LED_OFF);

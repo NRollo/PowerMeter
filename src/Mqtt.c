@@ -2,9 +2,14 @@
 #include "mqtt_client.h"
 
 static const char *TAG = "MQTT";
+// The MQTT server
 #define CONFIG_BROKER_URL "192.168.0.71"
 
-extern void GetCurrentTemp(float *temp);
+// Sensor getters
+extern void GetCurrentGas(int *Gas);
+extern void GetCurrentDuty(float *duty);
+
+// MQTT client handle
 esp_mqtt_client_handle_t MqttClient = NULL;
 
 static void log_error_if_nonzero(const char *message, int error_code)
@@ -26,7 +31,7 @@ static void log_error_if_nonzero(const char *message, int error_code)
  */
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
-    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
+    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%ld", base, event_id);
     esp_mqtt_event_handle_t event = event_data;
     /*
     esp_mqtt_client_handle_t client = event->client;
@@ -79,11 +84,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 void mqtt_app_start(void)
 {
     esp_mqtt_client_config_t mqtt_cfg = {
-        .client_id = "TempSensor",
-        .username = "IOT",
-        .password = "Mondeo",
-        .port = 1883,
-        .host = CONFIG_BROKER_URL,
+        .credentials.client_id = "GasSensor",
+        .credentials.username = "IOT",
+        .credentials.authentication.password = "Mondeo",
+        .broker.address.port = 1883,
+        .broker.address.hostname = CONFIG_BROKER_URL,
+        .broker.address.transport = MQTT_TRANSPORT_OVER_TCP
     };
 
     MqttClient = esp_mqtt_client_init(&mqtt_cfg);
@@ -95,19 +101,27 @@ void mqtt_app_start(void)
 void PublishMqttTask(void *pvParameters) {
     char buf[30] = "\000";
     int msg_id = 0;
-    float temp = 0.0;
+    int Gas = 0;
+    float FlameDutyCycle = 0.0;
 
     mqtt_app_start();
 
     while(1) {
-        GetCurrentTemp(&temp);
-        sprintf(buf, "%.1f", temp);
-        msg_id = esp_mqtt_client_publish(MqttClient, "/Temp/Sensor1", buf, 0, 1, 1);
+        GetCurrentGas(&Gas);
+        sprintf(buf, "%d", Gas);
+        msg_id = esp_mqtt_client_publish(MqttClient, "/Gasfyr/OnOff", buf, 0, 1, 1);
         if (msg_id < 0) {
-            ESP_LOGE(TAG, "Sensor not published: %d", msg_id);
+            ESP_LOGE(TAG, "Gas sensor 'FlameOnOff' not published: %d", msg_id);
         }
 
-        vTaskDelay(pdMS_TO_TICKS(30000));
+        GetCurrentDuty(&FlameDutyCycle);
+        sprintf(buf, "%.1f", FlameDutyCycle);
+        msg_id = esp_mqtt_client_publish(MqttClient, "/Gasfyr/dutyCyc", buf, 0, 1, 1);
+        if (msg_id < 0) {
+            ESP_LOGE(TAG, "Gas sensor 'Flame duty cycle' not published: %d", msg_id);
+        }
+        // Publish every 5 sec.
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
 
