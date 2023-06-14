@@ -16,8 +16,7 @@ The software is based on the ESP-IDF framework on the VSCODE IDE with the PLATFO
  - The message will get authenticated and decrypted with the two keys supplied (in denmark) by the power company.
  - The decrypted message will get parsed and then published to the MQTT server
  
- In order to save power the ESP32 'light-sleep' mode is utilized for ~6 sec. after the MQTT publish is done. Also for power resons, the CPU clock frequency has been
- has been chosen to 80 MHz.
+ In order to save power the ESP32 'light-sleep' mode is utilized for ~6 sec. after the MQTT publish is done. Also for power resons, the CPU clock frequency has been chosen to 80 MHz.
  The current SW release has been running for several month now without any "hick-ups".
 
 # Integration
